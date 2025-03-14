@@ -66,4 +66,6 @@ ORDER BY
     CASE WHEN @order_by::text = 'updated_at' AND @order_direction::text = 'asc' THEN updated_at END ASC,
     CASE WHEN @order_by::text = 'updated_at' AND @order_direction::text = 'desc' THEN updated_at END DESC,
     CASE WHEN @order_by::text = 'deleted_at' AND @order_direction::text = 'asc' THEN deleted_at END ASC,
-    CASE WHEN @order_by::text = 'deleted_at' AND @order_direction::text = 'desc' THEN deleted_at END DESC;
+    CASE WHEN @order_by::text = 'deleted_at' AND @order_direction::text = 'desc' THEN deleted_at END DESC
+LIMIT sqlc.narg('limit')::INT
+OFFSET sqlc.narg('offset')::INT;

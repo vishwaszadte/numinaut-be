@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const filterExpressions = `-- name: FilterExpressions :many
@@ -70,6 +71,8 @@ ORDER BY
     CASE WHEN $19::text = 'updated_at' AND $20::text = 'desc' THEN updated_at END DESC,
     CASE WHEN $19::text = 'deleted_at' AND $20::text = 'asc' THEN deleted_at END ASC,
     CASE WHEN $19::text = 'deleted_at' AND $20::text = 'desc' THEN deleted_at END DESC
+LIMIT $22::INT
+OFFSET $21::INT
 `
 
 type FilterExpressionsParams struct {
@@ -93,6 +96,8 @@ type FilterExpressionsParams struct {
 	UuidArr             []uuid.UUID `json:"uuid_arr"`
 	OrderBy             string      `json:"order_by"`
 	OrderDirection      string      `json:"order_direction"`
+	Offset              pgtype.Int4 `json:"offset"`
+	Limit               pgtype.Int4 `json:"limit"`
 }
 
 func (q *Queries) FilterExpressions(ctx context.Context, arg FilterExpressionsParams) ([]Expression, error) {
@@ -117,6 +122,8 @@ func (q *Queries) FilterExpressions(ctx context.Context, arg FilterExpressionsPa
 		arg.UuidArr,
 		arg.OrderBy,
 		arg.OrderDirection,
+		arg.Offset,
+		arg.Limit,
 	)
 	if err != nil {
 		return nil, err

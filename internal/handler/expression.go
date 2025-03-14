@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/vishwaszadte/numinaut-be/internal/repository"
 	"github.com/vishwaszadte/numinaut-be/internal/service"
 )
@@ -109,6 +110,22 @@ func (h *ExpressionHandler) Filter(w http.ResponseWriter, r *http.Request) {
 	params.OrderDirection = queryParams.Get("order_direction")
 	if params.OrderDirection == "" {
 		params.OrderDirection = "asc"
+	}
+
+	if limit := queryParams.Get("limit"); limit != "" {
+		if val, err := strconv.Atoi(limit); err == nil {
+			params.Limit = pgtype.Int4{Int32: int32(val), Valid: true}
+		}
+	} else {
+		params.Limit = pgtype.Int4{Int32: 10, Valid: true}
+	}
+
+	if offset := queryParams.Get("offset"); offset != "" {
+		if val, err := strconv.Atoi(offset); err == nil {
+			params.Offset = pgtype.Int4{Int32: int32(val), Valid: true}
+		}
+	} else {
+		params.Offset = pgtype.Int4{Int32: 0, Valid: true}
 	}
 
 	expressions, err := h.service.Filter(r.Context(), params)
